@@ -1,5 +1,5 @@
 # kcare-uchecker
-A simple tool to detect outdated shared libraries
+A simple tool to detect outdated shared libraries still linked to processes in memory
 
 ## Usage
 
@@ -22,3 +22,6 @@ For more verbose output you can choose logging level from ERROR, WARNING, INFO a
 ``` bash
 $ curl -s -L https://kernelcare.com/uchecker | sudo LOGLEVEL=debug python
 ```
+
+## About
+The project is part of [kernelcare.com](https://kernelcare.com "KernelCare") - livepatching solution for linux kernels as well as shared libraries like glibc and openssl
