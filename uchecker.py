@@ -31,6 +31,7 @@ import os
 import json
 import struct
 import logging
+import platform
 
 from collections import namedtuple
 
@@ -50,8 +51,14 @@ except ImportError:
     from urllib2 import urlopen
 
 USERSPACE_JSON = 'http://patches04.kernelcare.com/userspace.json'
+KCARE_PLUS_JSON = 'https://patches04.kernelcare.com/userspace-patches.json'
 LOGLEVEL = os.environ.get('LOGLEVEL', 'ERROR').upper()
 logging.basicConfig(level=LOGLEVEL, format='%(message)s')
+
+
+DIST, _, _ = platform.linux_distribution()
+DATA = json.load(urlopen(USERSPACE_JSON))
+KCPLUS_DATA = json.load(urlopen(KCARE_PLUS_JSON))
 
 
 class NotAnELFException(Exception):
@@ -116,10 +123,14 @@ def get_build_id(fileobj):
 
 
 def iter_maps(pid):
-    with open('/proc/{:d}/maps'.format(pid), 'r') as mapfd:
-        for line in mapfd:
-            data = (line.split() + [None, None])[:7]
-            yield Map(*data)
+    try:
+        with open('/proc/{:d}/maps'.format(pid), 'r') as mapfd:
+            for line in mapfd:
+                data = (line.split() + [None, None])[:7]
+                yield Map(*data)
+    except IOError as err:
+        # Most cases of IOErrors is a lack of maps due to process exit
+        logging.debug("Iter via `%d` map error: %s", pid, err)
 
 
 def get_vmas(pid, inode):
@@ -224,8 +235,8 @@ def iter_proc_lib():
 
             try:
                 cache[inode] = get_build_id(fileobj)
-            except NotAnELFException as err:
-                logging.debug("Cat't read buildID from {0}: {1}".format(pathname, err))
+            except (NotAnELFException, BuildIDParsingException) as err:
+                logging.info("Cat't read buildID from {0}: {1}".format(pathname, err))
                 cache[inode] = None
             except Exception as err:
                 logging.error("Cat't read buildID from {0}: {1}".format(pathname, err))
@@ -240,29 +251,33 @@ def is_kcplus_handled(build_id):
     return True
 
 
+def is_up_to_date(libname, build_id):
+    subset = DATA.get(DIST, {}).get(libname, {})
+    if not subset:
+        logging.warning('No data for %s/%s.', DIST, libname)
+    return not subset or build_id in subset
+
+
 def main():
-    data = json.load(urlopen(USERSPACE_JSON))
     failed = False
     for pid, libname, build_id in iter_proc_lib():
         comm = get_comm(pid)
         logging.info("For %s[%s] `%s` was found with buid id = %s",
                      comm, pid, libname, build_id)
-        if libname in data and build_id and build_id not in data[libname]:
+        if build_id and not is_up_to_date(libname, build_id):
             failed = True
             logging.error(
                 "[%s] Process %s[%d] linked to the `%s` that is not up to date.",
                 "*" if is_kcplus_handled(build_id) else " ",
-                comm,
-                pid,
-                libname
-            )
+                comm, pid, libname)
 
     if not failed:
         print("Everything is OK.")
     else:
-        print("\nYou may want to update libraries above and restart corresponding processes.\n\n"
-              "KernelCare+ allows to resolve such issues with no process downtime. "
-              "To find out more, please, visit https://lp.kernelcare.com/kernelcare-early-access?")
+        print("\nYou may want to update libraries above and restart "
+              "corresponding processes.\n\n KernelCare+ allows to resolve "
+              "such issues with no process downtime. To find out more, please,"
+              " visit https://lp.kernelcare.com/kernelcare-early-access?")
 
 
 if __name__ == '__main__':
