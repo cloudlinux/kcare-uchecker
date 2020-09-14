@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "kcare-uchecker"
-version = "0.1.0-beta.0"
+version = "0.1.0-beta.1"
 description = "A simple tool to detect outdated shared libraries"
 authors = ["Rinat Sabitov <rinat.sabitov@gmail.com>"]
 license = "GPL-2.0-only"
