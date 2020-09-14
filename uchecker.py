@@ -145,7 +145,7 @@ def get_vmas(pid, inode):
 
 
 def is_valid_file_mmap(mmap):
-    return mmap.pathname and mmap.flag not in ['(deleted)']  \
+    return mmap.pathname \
         and mmap.pathname not in IGNORED_PATHNAME \
         and not mmap.pathname.startswith('anon_inode:') \
         and not mmap.pathname.startswith('/dev/')
@@ -155,7 +155,8 @@ def get_process_files(pid):
     result = set()
     for mmap in iter_maps(pid):
         if is_valid_file_mmap(mmap):
-            result.add((mmap.pathname, mmap.inode))
+            pathname, _, _ = mmap.pathname.partition(';')
+            result.add((pathname, mmap.inode))
     return result
 
 
