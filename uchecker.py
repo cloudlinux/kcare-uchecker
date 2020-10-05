@@ -62,9 +62,9 @@ def linux_distribution():
         for line in fd:
             name, _, value = line.partition('=')
             if name == 'ID':
-                distro_id = value.strip()
+                distro_id = value.strip().strip('"')
             elif name == 'VERSION_ID':
-                distro_version_id = value('"').strip()
+                distro_version_id = value.strip().strip('"')
     return distro_id + distro_version_id
 
 
