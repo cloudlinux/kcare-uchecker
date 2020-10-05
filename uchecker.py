@@ -31,7 +31,6 @@ import os
 import json
 import struct
 import logging
-import platform
 
 from collections import namedtuple
 
@@ -56,7 +55,20 @@ LOGLEVEL = os.environ.get('LOGLEVEL', 'ERROR').upper()
 logging.basicConfig(level=LOGLEVEL, format='%(message)s')
 
 
-DIST, _, _ = platform.linux_distribution()
+def linux_distribution():
+    distro_id = 'Unknown'
+    distro_version_id = ''
+    with open('/etc/os-release') as fd:
+        for line in fd:
+            name, _, value = line.partition('=')
+            if name == 'ID':
+                distro_id = value.strip()
+            elif name == 'VERSION_ID':
+                distro_version_id = value('"').strip()
+    return distro_id + distro_version_id
+
+
+DIST = linux_distribution()
 DATA = json.load(urlopen(USERSPACE_JSON))
 KCPLUS_DATA = json.load(urlopen(KCARE_PLUS_JSON))
 
@@ -261,6 +273,7 @@ def is_up_to_date(libname, build_id):
 
 def main():
     failed = False
+    logging.info("Distro detected: %s", DIST)
     for pid, libname, build_id in iter_proc_lib():
         comm = get_comm(pid)
         logging.info("For %s[%s] `%s` was found with buid id = %s",
