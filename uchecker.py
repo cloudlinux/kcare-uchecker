@@ -33,7 +33,6 @@ import struct
 import logging
 
 from collections import namedtuple
-from contextlib import contextmanager
 
 ELF64_HEADER = "<16sHHIQQQIHHHHHH"
 ELF_PH_HEADER = "<IIQQQQQQ"
