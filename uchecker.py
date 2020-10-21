@@ -33,6 +33,7 @@ import struct
 import logging
 
 from collections import namedtuple
+from contextlib import contextmanager
 
 ELF64_HEADER = "<16sHHIQQQIHHHHHH"
 ELF_PH_HEADER = "<IIQQQQQQ"
@@ -233,29 +234,31 @@ def iter_proc_map():
             yield pid, inode, pathname
 
 
+def get_fileobj(pid, inode, pathname):
+    logging.debug("path: %s", pathname)
+    # If mapped file exists and has the same inode
+    if os.path.isfile(pathname) and os.stat(pathname).st_ino == int(inode):
+        fileobj = open(pathname, 'rb')
+    # If file exists only as a mapped to the memory
+    else:
+        fileobj = open_mmapped(pid, inode)
+        logging.warning("Library `%s` was gathered from memory.", pathname)
+    return fileobj
+
+
 def iter_proc_lib():
     cache = {}
     for pid, inode, pathname in iter_proc_map():
         if inode not in cache:
-            logging.debug("path: %s", pathname)
-            # If mapped file exists and has the same inode
-            if os.path.isfile(pathname) and os.stat(pathname).st_ino == int(inode):
-                fileobj = open(pathname, 'rb')
-            # If file exists only as a mapped to the memory
-            else:
-                fileobj = open_mmapped(pid, inode)
-                logging.warning("Library `%s` was gathered from memory.", pathname)
-
             try:
-                cache[inode] = get_build_id(fileobj)
+                with get_fileobj(pid, inode, pathname) as fileobj:
+                    cache[inode] = get_build_id(fileobj)
             except (NotAnELFException, BuildIDParsingException) as err:
                 logging.info("Cat't read buildID from {0}: {1}".format(pathname, err))
                 cache[inode] = None
             except Exception as err:
                 logging.error("Cat't read buildID from {0}: {1}".format(pathname, err))
                 cache[inode] = None
-            finally:
-                fileobj.close()
         build_id = cache[inode]
         yield pid, os.path.basename(pathname), build_id
 
@@ -292,6 +295,8 @@ def main():
               "corresponding processes.\n\n KernelCare+ allows to resolve "
               "such issues with no process downtime. To find out more, please,"
               " visit https://lp.kernelcare.com/kernelcare-early-access?")
+
+    return 0 if not failed else 1
 
 
 if __name__ == '__main__':
