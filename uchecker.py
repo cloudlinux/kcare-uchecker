@@ -31,6 +31,7 @@ import os
 import json
 import struct
 import logging
+import subprocess
 
 from collections import namedtuple
 
@@ -49,6 +50,7 @@ try:
 except ImportError:
     from urllib2 import urlopen
 
+KCARECTL = '/usr/bin/kcarectl'
 USERSPACE_JSON = 'http://patches04.kernelcare.com/userspace.json'
 KCARE_PLUS_JSON = 'https://patches04.kernelcare.com/userspace-patches.json'
 LOGLEVEL = os.environ.get('LOGLEVEL', 'ERROR').upper()
@@ -68,9 +70,39 @@ def linux_distribution():
     return distro_id + distro_version_id
 
 
+def get_kcare_lib_update():
+    result = {}
+
+    if os.path.isfile(KCARECTL):
+
+        try:
+            output = subprocess.check_output(
+                [KCARECTL, '--lib-info', '--json'])
+        except subprocess.CalledProcessError as e:
+            logging.debug(e)
+            return result
+
+        try:
+            data = json.loads(output)
+        except ValueError as e:
+            logging.debug(e)
+            return result
+
+        try:
+            for item in data['result']:
+                for k, v in item.items():
+                    if isinstance(v, dict) and 'buildid' in v:
+                        result[v['buildid']] = k
+        except Exception as e:
+            logging.debug(e)
+
+    return result
+
+
 DIST = linux_distribution()
 DATA = json.load(urlopen(USERSPACE_JSON))
 KCPLUS_DATA = json.load(urlopen(KCARE_PLUS_JSON))
+PATCHED_DATA = get_kcare_lib_update()
 
 
 class NotAnELFException(Exception):
@@ -263,7 +295,7 @@ def iter_proc_lib():
 
 
 def is_kcplus_handled(build_id):
-    return True
+    return build_id in KCPLUS_DATA
 
 
 def is_up_to_date(libname, build_id):
@@ -280,7 +312,7 @@ def main():
         comm = get_comm(pid)
         logging.info("For %s[%s] `%s` was found with buid id = %s",
                      comm, pid, libname, build_id)
-        if build_id and not is_up_to_date(libname, build_id):
+        if build_id and build_id not in PATCHED_DATA and not is_up_to_date(libname, build_id):
             failed = True
             logging.error(
                 "[%s] Process %s[%d] linked to the `%s` that is not up to date.",
