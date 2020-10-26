@@ -50,7 +50,7 @@ try:
 except ImportError:
     from urllib2 import urlopen
 
-KCARECTL = '/usr/bin/kcarectl'
+LIBCARE_CTL = '/usr/libexec/kcare/libcare-ctl'
 USERSPACE_JSON = 'http://patches04.kernelcare.com/userspace.json'
 KCARE_PLUS_JSON = 'https://patches04.kernelcare.com/userspace-patches.json'
 LOGLEVEL = os.environ.get('LOGLEVEL', 'ERROR').upper()
@@ -70,26 +70,14 @@ def linux_distribution():
     return distro_id + distro_version_id
 
 
-def get_kcare_lib_update():
+def get_patched_data():
     result = {}
 
-    if os.path.isfile(KCARECTL):
-
+    if os.path.isfile(LIBCARE_CTL):
         try:
-            output = subprocess.check_output(
-                [KCARECTL, '--lib-info', '--json'])
-        except subprocess.CalledProcessError as e:
-            logging.debug(e)
-            return result
-
-        try:
-            data = json.loads(output)
-        except ValueError as e:
-            logging.debug(e)
-            return result
-
-        try:
-            for item in data['result']:
+            output = subprocess.check_output([LIBCARE_CTL, 'info', '-j'])
+            for line in output.splitlines():
+                item = json.loads(line)
                 for k, v in item.items():
                     if isinstance(v, dict) and 'buildid' in v:
                         result[v['buildid']] = k
@@ -102,7 +90,7 @@ def get_kcare_lib_update():
 DIST = linux_distribution()
 DATA = json.load(urlopen(USERSPACE_JSON))
 KCPLUS_DATA = json.load(urlopen(KCARE_PLUS_JSON))
-PATCHED_DATA = get_kcare_lib_update()
+PATCHED_DATA = get_patched_data()
 
 
 class NotAnELFException(Exception):
