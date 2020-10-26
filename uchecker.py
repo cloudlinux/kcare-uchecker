@@ -69,7 +69,7 @@ def linux_distribution():
 
 
 DIST = linux_distribution()
-DATA = json.load(urlopen(USERSPACE_JSON))
+DATA = json.load(urlopen(USERSPACE_JSON)).get(DIST, {})
 KCPLUS_DATA = json.load(urlopen(KCARE_PLUS_JSON))
 
 
@@ -267,7 +267,7 @@ def is_kcplus_handled(build_id):
 
 
 def is_up_to_date(libname, build_id):
-    subset = DATA.get(DIST, {}).get(libname, {})
+    subset = DATA.get(libname, {})
     if not subset:
         logging.warning('No data for %s/%s.', DIST, libname)
     return not subset or build_id in subset
