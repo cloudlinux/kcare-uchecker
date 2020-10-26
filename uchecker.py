@@ -80,7 +80,7 @@ def get_patched_data():
                 item = json.loads(line)
                 for k, v in item.items():
                     if isinstance(v, dict) and 'buildid' in v:
-                        result[v['buildid']] = k
+                        result[(item['pid'], v['buildid'])] = k
         except Exception as e:
             logging.debug(e)
 
@@ -300,7 +300,7 @@ def main():
         comm = get_comm(pid)
         logging.info("For %s[%s] `%s` was found with buid id = %s",
                      comm, pid, libname, build_id)
-        if build_id and build_id not in PATCHED_DATA and not is_up_to_date(libname, build_id):
+        if build_id and (pid, build_id) not in PATCHED_DATA and not is_up_to_date(libname, build_id):
             failed = True
             logging.error(
                 "[%s] Process %s[%d] linked to the `%s` that is not up to date.",
