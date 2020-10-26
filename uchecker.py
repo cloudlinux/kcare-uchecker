@@ -71,16 +71,16 @@ def linux_distribution():
 
 
 def get_patched_data():
-    result = {}
+    result = set()
 
     if os.path.isfile(LIBCARE_CTL):
         try:
             output = subprocess.check_output([LIBCARE_CTL, 'info', '-j'])
             for line in output.splitlines():
                 item = json.loads(line)
-                for k, v in item.items():
+                for v in item.values():
                     if isinstance(v, dict) and 'buildid' in v:
-                        result[(item['pid'], v['buildid'])] = k
+                        result.add((item['pid'], v['buildid']))
         except Exception as e:
             logging.debug(e)
 
