@@ -2,7 +2,7 @@
 set -o errexit
 set -o pipefail
 set -o nounset
-#set -o xtrace
+set -o xtrace
 
 
 list_build_id() {
@@ -37,4 +37,7 @@ yum install -q -y wget redhat-lsb-core yum-utils binutils elfutils > /dev/null 2
 wget -q -O ./jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64
 chmod +x ./jq
 
-{ list_build_id openssl-libs && list_build_id glibc; } | ./jq -s 'reduce .[] as $item ({}; . * $item)'
+{
+    list_build_id openssl-libs && \
+    list_build_id glibc;
+} | ./jq -s 'reduce .[] as $item ({}; . * $item)'
