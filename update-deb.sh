@@ -5,23 +5,36 @@ set -o nounset
 #set -o xtrace
 
 
+download_packages_deb(){
+    # Extract and download all availiable package
+    package=$1
+    tmp_packages=$2
+    apt-cache madison "${package}" | awk '{print $3}' | sed "s/.*/${package}=&/" | xargs -t -L1 apt-get install -y --reinstall --force-yes --download-only -o=dir::cache=${tmp_packages} -o=Debug::NoLocking=1 > /dev/null 2>&1
+}
+
+
+unpack_package_deb(){
+    # Unpack an rom package
+    package_file=$1
+    dest=$2
+    dpkg -x "${package_file}" "${dest}" 2>/dev/null
+}
+
+
 list_build_id() {
     package=$1
     os=$(lsb_release -sri)
     tmp_packages=$(mktemp -d)
     chmod 755 "${tmp_packages}"
 
-    # Extract and download all availiable package
-    apt-cache madison "${package}" | awk '{print $3}' | sed "s/.*/${package}=&/" | xargs -t -L1 apt-get install -y --reinstall --force-yes --download-only -o=dir::cache=${tmp_packages} -o=Debug::NoLocking=1 > /dev/null 2>&1
-    #ackage ssearch --allow-downgrades
-
-    for package_file in $(ls ${tmp_packages}/**/*.deb 2>/dev/null || :)
+    download_packages_deb "${package}" "${tmp_packages}"
+    for package_file in $(ls ${tmp_packages}/**/*.{deb,rpm} 2>/dev/null || :)
     do
-        TMP_PACK=$(mktemp -d)
-        # Unpack an rom package
-        dpkg -x $package_file "${TMP_PACK}" 2>/dev/null
+        tmp_pack=$(mktemp -d)
+        unpack_package_deb "${package_file}" "${tmp_pack}"
+
         # Get Build ID for all executable file
-        for solib in $(find "${TMP_PACK}" -name "*.so*" -type f)
+        for solib in $(find "${tmp_pack}" -name "*.so*" -type f)
         do
             buildid=$(eu-readelf -n $solib | grep "Build ID:" | cut -d: -f2)
             ./jq -n --arg os "${os}" \
@@ -30,7 +43,7 @@ list_build_id() {
                 --arg buildid "${buildid}" \
                 '.[$os]=(.[$package]=(.[$solib]=$buildid))'
         done
-        rm -rf "${TMP_PACK}"
+        rm -rf "${tmp_pack}"
     done
     rm -rf "${tmp_packages}"
 }
