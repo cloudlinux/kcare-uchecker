@@ -1,8 +1,13 @@
 #!/usr/bin/env bash
+
+if [ -n "${DEBUG}" ]; then
+    set -o xtrace
+fi
+
+set -o nounset
 set -o errexit
 set -o pipefail
-set -o nounset
-set -o xtrace
+
 
 download_packages_rpm() {
     # Extract and download all availiable package
@@ -17,7 +22,7 @@ download_packages_deb(){
     package=$1
     dest=$2
     apt-get -q update > /dev/null 2>&1
-    apt-cache madison "${package}" | awk '{print $3}' | sed "s/.*/${package}=&/" | xargs --no-run-if-empty apt-get install -y --reinstall --force-yes --download-only -o="dir::cache=${dest}" -o=Debug::NoLocking=1 > /dev/null 2>&1
+    apt-cache madison "${package}" | awk '{print $3}' | sed "s/.*/${package}=&/" | xargs -L1 --no-run-if-empty apt-get install -y --reinstall --force-yes --download-only -o="dir::cache=${dest}" -o=Debug::NoLocking=1 > /dev/null 2>&1
 }
 
 
@@ -44,7 +49,7 @@ list_build_id() {
     chmod 755 "${tmp_packages}"
 
     download_packages_"${kind}" "${package}" "${tmp_packages}"
-    for package_file in $(ls "${tmp_packages}"/*.{deb,rpm} 2>/dev/null || :)
+    for package_file in $(find "${tmp_packages}" -type f -name "*.deb" -or -name "*.rpm" 2>/dev/null || :)
     do
         tmp_pack=$(mktemp -d)
         unpack_package_"${kind}" "${package_file}" "${tmp_pack}"
