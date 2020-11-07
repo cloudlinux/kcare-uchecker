@@ -9,8 +9,7 @@ jobs:
     steps:
       - checkout
       - python/load-cache
-            keys:
-                - deps-{{ checksum "poetry.lock" }}
+            key: deps-{{ checksum "poetry.lock" }}
       - run:
           name: Install Dependencies
           command: |
