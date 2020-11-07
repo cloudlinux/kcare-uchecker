@@ -8,13 +8,13 @@ jobs:
     executor: python/default
     steps:
       - checkout
-      - python/load-cache
+      - restore_cache
             key: deps-{{ checksum "poetry.lock" }}
       - run:
           name: Install Dependencies
           command: |
             poetry install
-      - python/save-cache
+      - save_cache
             key: deps-{{ checksum "poetry.lock" }}
             paths:
                 - /home/circleci/.cache/pypoetry/virtualenvs
