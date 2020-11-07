@@ -9,11 +9,20 @@ jobs:
     steps:
       - checkout
       - python/load-cache
-      - python/install-deps
-      - python/save-cache
+        keys:
+            - deps-{{ checksum "poetry.lock" }}
       - run:
-          command: ./manage.py test
-          name: Test
+          name: Install Dependencies
+          command: |
+            poetry install
+      - python/save-cache
+            key: deps-{{ checksum "poetry.lock" }}
+            paths:
+                - /home/circleci/.cache/pypoetry/virtualenvs
+      - run:
+          name: Run flake8
+          command: |
+            poetry run flake8 --max-line-length 120 .
 
 workflows:
   main:

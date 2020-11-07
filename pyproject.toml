@@ -12,11 +12,12 @@ packages = [
 python = "^3.8|^2.7"
 
 [tool.poetry.dev-dependencies]
+flake8 = "^3.8.4"
+
+[tool.poetry.scripts]
+uchecker = 'uchecker:main'
 
 [build-system]
 requires = ["poetry>=0.12"]
 build-backend = "poetry.masonry.api"
-
-[tool.poetry.scripts]
-uchecker = 'uchecker:main'
 
