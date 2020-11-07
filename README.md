@@ -1,4 +1,7 @@
 # kcare-uchecker
+
+[![CircleCI](https://circleci.com/gh/circleci/circleci-docs.svg?style=svg)](https://circleci.com/gh/circleci/circleci-docs)
+
 A simple tool to detect outdated shared libraries still linked to processes in memory
 
 ## Usage
