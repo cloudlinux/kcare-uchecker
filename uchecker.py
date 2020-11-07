@@ -145,7 +145,8 @@ def get_build_id(fileobj):
                 if n_descsz % 4:
                     n_descsz = ((n_descsz // 4) + 1) * 4
 
-                logging.debug("n_type: %d, n_namesz: %d, n_descsz: %d)", n_type, n_namesz, n_descsz)
+                logging.debug("n_type: %d, n_namesz: %d, n_descsz: %d)",
+                              n_type, n_namesz, n_descsz)
                 fileobj.read(n_namesz)
                 desc = struct.unpack("<{0}B".format(n_descsz), fileobj.read(n_descsz))
             if n_type is not None:
@@ -300,7 +301,8 @@ def main():
         comm = get_comm(pid)
         logging.info("For %s[%s] `%s` was found with buid id = %s",
                      comm, pid, libname, build_id)
-        if build_id and (pid, build_id) not in PATCHED_DATA and not is_up_to_date(libname, build_id):
+        if build_id and (pid, build_id) not in PATCHED_DATA \
+           and not is_up_to_date(libname, build_id):
             failed = True
             logging.error(
                 "[%s] Process %s[%d] linked to the `%s` that is not up to date.",

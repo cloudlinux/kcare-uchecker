@@ -1,4 +1,7 @@
 # kcare-uchecker
+
+[![CircleCI](https://circleci.com/gh/cloudlinux/kcare-uchecker.svg?style=svg)](https://circleci.com/gh/cloudlinux/kcare-uchecker)
+
 A simple tool to detect outdated shared libraries still linked to processes in memory
 
 ## Usage
