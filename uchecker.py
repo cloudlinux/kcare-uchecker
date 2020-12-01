@@ -73,16 +73,27 @@ def linux_distribution():
 def get_patched_data():
     result = set()
 
-    if os.path.isfile(LIBCARE_CTL):
-        try:
-            output = subprocess.check_output([LIBCARE_CTL, 'info', '-j'])
-            for line in output.splitlines():
-                item = json.loads(line)
-                for v in item.values():
-                    if isinstance(v, dict) and 'buildid' in v:
-                        result.add((item['pid'], v['buildid']))
-        except Exception as e:
-            logging.debug(e)
+    if not os.path.isfile(LIBCARE_CTL):
+        logging.debug("Libcare tools are not found.")
+        return result
+
+    try:
+        proc = subprocess.Popen([LIBCARE_CTL, 'info', '-j'],
+                                stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        std_out, std_err = proc.communicate()
+        if proc.returncode != 0:
+            raise Exception("Libcare error: %s (%d)" % (std_err.strip(), proc.returncode))
+
+        if std_err:
+            logging.debug("Libcare error output: %s", std_err.strip())
+
+        for line in std_out.splitlines():
+            item = json.loads(line)
+            for v in item.values():
+                if isinstance(v, dict) and 'buildid' in v:
+                    result.add((item['pid'], v['buildid']))
+    except Exception as e:
+        logging.debug("Can't read libcare info: %s", e)
 
     return result
 
@@ -274,10 +285,10 @@ def iter_proc_lib():
                 with get_fileobj(pid, inode, pathname) as fileobj:
                     cache[inode] = get_build_id(fileobj)
             except (NotAnELFException, BuildIDParsingException) as err:
-                logging.info("Cat't read buildID from {0}: {1}".format(pathname, err))
+                logging.info("Cant't read buildID from {0}: {1}".format(pathname, repr(err)))
                 cache[inode] = None
             except Exception as err:
-                logging.error("Cat't read buildID from {0}: {1}".format(pathname, err))
+                logging.error("Cant't read buildID from {0}: {1}".format(pathname, repr(err)))
                 cache[inode] = None
         build_id = cache[inode]
         yield pid, os.path.basename(pathname), build_id
