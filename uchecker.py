@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 
-from __future__ import unicode_literals
-
 """ Detect outdated shared libraries.
 
 Detect and report not up-to-date shared libraries that used by running
@@ -151,7 +149,7 @@ def _linux_distribution():
         for source, field in sources:
             val = source.get(field)
             if val is not None:
-                return val.strip()
+                return val.strip().decode('utf-8')
         return ''
 
     return first(name_sources), first(version_sources), first(codename_sources)
@@ -164,7 +162,7 @@ def get_dist():
         linux_distribution = _linux_distribution
 
     name, version, codename = linux_distribution()
-    return (name + version).replace(b' ', b'-').lower().decode('utf-8')
+    return (name + version).replace(' ', '-').lower()
 
 
 def get_patched_data():
