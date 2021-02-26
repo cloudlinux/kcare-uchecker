@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+from __future__ import unicode_literals
+
 """ Detect outdated shared libraries.
 
 Detect and report not up-to-date shared libraries that used by running
@@ -51,23 +53,118 @@ except ImportError:
     from urllib2 import urlopen
 
 LIBCARE_CTL = '/usr/libexec/kcare/libcare-ctl'
-USERSPACE_JSON = 'http://patches04.kernelcare.com/userspace.json'
+USERSPACE_JSON = 'https://gist.githubusercontent.com/histrio/f1532b287f4f6b206ddb8a903d41e423/raw/userspace.json'
 KCARE_PLUS_JSON = 'https://patches04.kernelcare.com/userspace-patches.json'
 LOGLEVEL = os.environ.get('LOGLEVEL', 'ERROR').upper()
 logging.basicConfig(level=LOGLEVEL, format='%(message)s')
 
 
-def linux_distribution():
-    distro_id = 'Unknown'
-    distro_version_id = ''
-    with open('/etc/os-release') as fd:
-        for line in fd:
-            name, _, value = line.partition('=')
-            if name == 'ID':
-                distro_id = value.strip().strip('"')
-            elif name == 'VERSION_ID':
-                distro_version_id = value.strip().strip('"')
-    return distro_id + distro_version_id
+def check_output(*args, **kwargs):
+    """ Backported implementation for check_output.
+    """
+    out, err = '', ''
+    try:
+        p = subprocess.Popen(stdout=subprocess.PIPE, stderr=subprocess.PIPE, *args, **kwargs)
+        out, err = p.communicate()
+    except OSError as e:
+        logging.debug('Subprocess `%s %s` error: (%s) %s', args, kwargs, e, err)
+    return out
+
+
+def _linux_distribution():
+    """
+    An alternative implementation became necessary because Python
+    3.5 deprecated this function, and Python 3.8 removed it altogether.
+
+    Additional parameters like `full_distribution_name` are not implemented.
+    """
+
+    uname_raw = check_output(['uname', '-rs'])
+    uname_name, _, uname_version = uname_raw.partition(b' ')
+    uname = {'id': uname_name.lower(), 'name': uname_name, 'release': uname_version}
+
+    os_release_raw = check_output(['cat', '/etc/os-release'])
+    os_release = {}
+    for line in os_release_raw.split(b'\n'):
+        k, _, v = line.partition(b'=')
+        k = k.lower()
+        if k in (b'name', ):
+            os_release['name'] = v.strip(b'"')
+        elif k in (b'version', b'version_id', ):
+            os_release['version'] = v
+        elif k in (b'version_codename', b'ubuntu_codename', ):
+            os_release['codename'] = v
+        elif k in (b'pretty_name', ):
+            os_release['pretty_name_version_id'] = v.split(b' ')[-1]
+
+    lsb_release_raw = check_output(['lsb_release', '-a'])
+    lsb_release = {}
+    for line in lsb_release_raw.split('\n'):
+        k, _, v = line.partition(':')
+        k = k.lower()
+        if k in (b'codename', ):
+            lsb_release['codename'] = v
+        elif k in (b'release', ):
+            lsb_release['release'] = v
+        elif k in (b'distributor id', ):
+            lsb_release['distributor_id'] = v
+        elif k in (b'description', ):
+            lsb_release['desciption_version_id'] = 'test'
+
+    for dist_file in sorted(check_output(['ls', '/etc']).split(b'\n')):
+        if (dist_file.endswith(b'-release') or dist_file.endswith(b'_version')):
+            distro_release_raw = check_output(['cat', os.path.join(b'/etc', dist_file)])
+            if distro_release_raw:
+                break
+
+    distro_release_name, _, distro_release_version = distro_release_raw.partition(b' release ')
+    distro_release_version, _, distro_release_codename = distro_release_version.partition(b' ')
+    distro_release = {
+        'name': distro_release_name,
+        'version_id': distro_release_version,
+        'codename': distro_release_codename
+    }
+
+    name_sources = (
+        (os_release, "name"),
+        (lsb_release, "distributor_id"),
+        (distro_release, "name"),
+        (uname, "name")
+    )
+
+    codename_sources = (
+        (os_release, 'codename'),
+        (lsb_release, 'codename'),
+        (distro_release, 'codename')
+    )
+
+    version_sources = (
+        (os_release, 'version_id'),
+        (lsb_release, 'release'),
+        (distro_release, 'version_id'),
+        (os_release, 'pretty_name_version_id'),
+        (lsb_release, 'description_version_id'),
+        (uname, 'release')
+    )
+
+    def first(sources):
+        for source, field in sources:
+            val = source.get(field)
+            if val is not None:
+                return val.strip()
+        return ''
+
+    return first(name_sources), first(version_sources), first(codename_sources)
+
+
+def get_dist():
+    try:
+        from platform import linux_distribution
+    except ImportError:
+        linux_distribution = _linux_distribution
+
+    name, version, codename = linux_distribution()
+    return (name + version).replace(b' ', b'-').lower().decode('utf-8')
 
 
 def get_patched_data():
@@ -98,8 +195,15 @@ def get_patched_data():
     return result
 
 
-DIST = linux_distribution()
+DIST = get_dist()
 DATA = json.load(urlopen(USERSPACE_JSON)).get(DIST, {})
+
+# Handle references
+if 'ref-' in DATA:
+    DIST = DATA[4:]
+    DATA = json.load(urlopen(USERSPACE_JSON)).get(DIST) or {}
+
+
 KCPLUS_DATA = json.load(urlopen(KCARE_PLUS_JSON))
 PATCHED_DATA = get_patched_data()
 
