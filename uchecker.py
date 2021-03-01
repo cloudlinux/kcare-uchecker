@@ -97,8 +97,8 @@ def _linux_distribution():
 
     lsb_release_raw = check_output(['lsb_release', '-a'])
     lsb_release = {}
-    for line in lsb_release_raw.split('\n'):
-        k, _, v = line.partition(':')
+    for line in lsb_release_raw.split(b'\n'):
+        k, _, v = line.partition(b':')
         k = k.lower()
         if k in (b'codename', ):
             lsb_release['codename'] = v
