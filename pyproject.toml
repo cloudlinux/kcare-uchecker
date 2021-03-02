@@ -4,6 +4,10 @@ version = "0.1.0"
 description = "A simple tool to detect outdated shared libraries"
 authors = ["Rinat Sabitov <rinat.sabitov@gmail.com>"]
 license = "GPL-2.0-only"
+readme = "README.md"
+homepage = "https://kernelcare.com/"
+repository = "https://github.com/cloudlinux/kcare-uchecker"
+keywords = ["security-audit", "shared-libraries", "security-scanner", "security-tools", "secutiry"]
 packages = [
     { include = "uchecker.py" },
 ]
