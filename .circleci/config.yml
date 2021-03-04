@@ -21,7 +21,7 @@ jobs:
       - run:
           name: Run flake8
           command: |
-            poetry run flake8 --max-line-length 120 .
+            poetry run flake8 --max-line-length 120 --ignore=E721 .
 
 workflows:
   main:
