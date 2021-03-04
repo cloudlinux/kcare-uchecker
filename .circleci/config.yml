@@ -1,11 +1,9 @@
 version: 2.1
 
-orbs:
-  python: circleci/python@0.2.1
-
 jobs:
-  build-and-test:
-    executor: python/default
+  build-and-test-36: &test-template
+    docker:
+        - image: circleci/python:3.6
     steps:
       - checkout
       - restore_cache:
@@ -13,7 +11,7 @@ jobs:
       - run:
           name: Install Dependencies
           command: |
-            poetry install
+            poetry install -vvv
       - save_cache:
             key: deps-{{ checksum "poetry.lock" }}
             paths:
@@ -22,8 +20,36 @@ jobs:
           name: Run flake8
           command: |
             poetry run flake8 --max-line-length 120 --ignore=E721 .
+      - run:
+          name: Test and get coverage
+          command: |
+            poetry run pytest --cov uchecker -v
+  build-and-test-37:
+    <<: *test-template
+    docker:
+        - image: circleci/python:3.7
+  build-and-test-382:
+    <<: *test-template
+    docker:
+        - image: circleci/python:3.8.2
+  build-and-test-383:
+    <<: *test-template
+    docker:
+        - image: circleci/python:3.8.3
+  build-and-test-39:
+    <<: *test-template
+    docker:
+        - image: circleci/python:3.9
+  build-and-test-27:
+    <<: *test-template
+    docker:
+        - image: circleci/python:2.7
 
 workflows:
   main:
     jobs:
-      - build-and-test
+      - build-and-test-27
+      - build-and-test-37
+      - build-and-test-382
+      - build-and-test-383
+      - build-and-test-39

@@ -1,7 +1,10 @@
-import pytest
 import mock
-
 import uchecker
+
+
+LIBCARE_INFO_OUT = '{"pid": 20025, "comm": "sshd" , '\
+    '"libc-2.17.so": {"buildid": "f9fafde281e0e0e2af45911ad0fa115b64c2cea8", "patchlvl": 2021021205}, '\
+    '"libcrypto.so.1.0.2k": {"buildid": "4cf1939f660008cfa869d8364651f31aacd2c1c4", "patchlvl": 2021012902}}'
 
 
 def tests_get_patched_data(tmpdir):
@@ -15,7 +18,7 @@ def tests_get_patched_data(tmpdir):
             assert uchecker.get_patched_data() == set()
         with mock.patch('uchecker.check_output', return_value='{wrong-format}'):
             assert uchecker.get_patched_data() == set()
-        with mock.patch('uchecker.check_output', return_value='{"pid": 20025, "comm": "sshd" , "libc-2.17.so": {"buildid": "f9fafde281e0e0e2af45911ad0fa115b64c2cea8", "patchlvl": 2021021205}, "libcrypto.so.1.0.2k": {"buildid": "4cf1939f660008cfa869d8364651f31aacd2c1c4", "patchlvl": 2021012902}}'):
+        with mock.patch('uchecker.check_output', return_value=LIBCARE_INFO_OUT):
             assert uchecker.get_patched_data() == {
                 (20025, '4cf1939f660008cfa869d8364651f31aacd2c1c4'),
                 (20025, 'f9fafde281e0e0e2af45911ad0fa115b64c2cea8')
