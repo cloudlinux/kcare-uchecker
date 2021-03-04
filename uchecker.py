@@ -57,13 +57,13 @@ LOGLEVEL = os.environ.get('LOGLEVEL', 'ERROR').upper()
 logging.basicConfig(level=LOGLEVEL, format='%(message)s')
 
 
-def normalize(data, encoding='utf-8'):  # pragma: no py2 cover
+def normalize(data, encoding='utf-8'):
     if type(data) is type(''):
         return data
     elif type(data) is type(b''):
         return data.decode(encoding)
     else:
-        return data.encode(encoding)  # pragma: no py3 cover
+        return data.encode(encoding)
 
 
 def check_output(*args, **kwargs):
