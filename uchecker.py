@@ -57,6 +57,15 @@ LOGLEVEL = os.environ.get('LOGLEVEL', 'ERROR').upper()
 logging.basicConfig(level=LOGLEVEL, format='%(message)s')
 
 
+def normalize(data, encoding='utf-8'):
+    if type(data) is type(''):
+        return data
+    elif type(data) is type(b''):
+        return data.decode(encoding)
+    else:
+        return data.encode(encoding)
+
+
 def check_output(*args, **kwargs):
     """ Backported implementation for check_output.
     """
@@ -66,7 +75,7 @@ def check_output(*args, **kwargs):
         out, err = p.communicate()
     except OSError as e:
         logging.debug('Subprocess `%s %s` error: (%s) %s', args, kwargs, e, err)
-    return out
+    return normalize(out)
 
 
 def _linux_distribution():
@@ -78,45 +87,45 @@ def _linux_distribution():
     """
 
     uname_raw = check_output(['uname', '-rs'])
-    uname_name, _, uname_version = uname_raw.partition(b' ')
+    uname_name, _, uname_version = uname_raw.partition(' ')
     uname = {'id': uname_name.lower(), 'name': uname_name, 'release': uname_version}
 
     os_release_raw = check_output(['cat', '/etc/os-release'])
     os_release = {}
-    for line in os_release_raw.split(b'\n'):
-        k, _, v = line.partition(b'=')
+    for line in os_release_raw.split('\n'):
+        k, _, v = line.partition('=')
         k = k.lower()
-        if k in (b'name', ):
-            os_release['name'] = v.strip(b'"')
-        elif k in (b'version', b'version_id', ):
+        if k in ('name', ):
+            os_release['name'] = v.strip('"')
+        elif k in ('version', 'version_id', ):
             os_release['version'] = v
-        elif k in (b'version_codename', b'ubuntu_codename', ):
+        elif k in ('version_codename', 'ubuntu_codename', ):
             os_release['codename'] = v
-        elif k in (b'pretty_name', ):
-            os_release['pretty_name_version_id'] = v.split(b' ')[-1]
+        elif k in ('pretty_name', ):
+            os_release['pretty_name_version_id'] = v.split(' ')[-1]
 
     lsb_release_raw = check_output(['lsb_release', '-a'])
     lsb_release = {}
-    for line in lsb_release_raw.split(b'\n'):
-        k, _, v = line.partition(b':')
+    for line in lsb_release_raw.split('\n'):
+        k, _, v = line.partition(':')
         k = k.lower()
-        if k in (b'codename', ):
+        if k in ('codename', ):
             lsb_release['codename'] = v
-        elif k in (b'release', ):
+        elif k in ('release', ):
             lsb_release['release'] = v
-        elif k in (b'distributor id', ):
+        elif k in ('distributor id', ):
             lsb_release['distributor_id'] = v
-        elif k in (b'description', ):
+        elif k in ('description', ):
             lsb_release['desciption_version_id'] = 'test'
 
-    for dist_file in sorted(check_output(['ls', '/etc']).split(b'\n')):
-        if (dist_file.endswith(b'-release') or dist_file.endswith(b'_version')):
-            distro_release_raw = check_output(['cat', os.path.join(b'/etc', dist_file)])
+    for dist_file in sorted(check_output(['ls', '/etc']).split('\n')):
+        if (dist_file.endswith('-release') or dist_file.endswith('_version')):
+            distro_release_raw = check_output(['cat', os.path.join('/etc', dist_file)])
             if distro_release_raw:
                 break
 
-    distro_release_name, _, distro_release_version = distro_release_raw.partition(b' release ')
-    distro_release_version, _, distro_release_codename = distro_release_version.partition(b' ')
+    distro_release_name, _, distro_release_version = distro_release_raw.partition(' release ')
+    distro_release_version, _, distro_release_codename = distro_release_version.partition(' ')
     distro_release = {
         'name': distro_release_name,
         'version_id': distro_release_version,
@@ -149,7 +158,7 @@ def _linux_distribution():
         for source, field in sources:
             val = source.get(field)
             if val is not None:
-                return val.strip().decode('utf-8')
+                return val.strip()
         return ''
 
     return first(name_sources), first(version_sources), first(codename_sources)
