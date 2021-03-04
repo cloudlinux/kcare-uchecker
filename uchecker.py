@@ -263,14 +263,14 @@ def get_build_id(fileobj):
                 fileobj.read(n_namesz)
                 desc = struct.unpack("<{0}B".format(n_descsz), fileobj.read(n_descsz))
             if n_type is not None:
-                return ''.join('{:02x}'.format(x) for x in desc)
+                return ''.join('{0:02x}'.format(x) for x in desc)
     # Nothing was found
     raise BuildIDParsingException("Program header PT_NOTE with NT_GNU_BUILD_ID was not found.")
 
 
 def iter_maps(pid):
     try:
-        with open('/proc/{:d}/maps'.format(pid), 'r') as mapfd:
+        with open('/proc/{0:d}/maps'.format(pid), 'r') as mapfd:
             for line in mapfd:
                 data = (line.split() + [None, None])[:7]
                 yield Map(*data)
@@ -309,7 +309,7 @@ def get_process_files(pid):
 class FileMMapped(object):
 
     def __init__(self, pid, inode):
-        self.fileobj = open('/proc/{:d}/mem'.format(pid), 'rb')
+        self.fileobj = open('/proc/{0:d}/mem'.format(pid), 'rb')
         self.vmas = get_vmas(pid, inode)
         self.pos = 0
         self.fileobj.seek(self._get_vma(0).start)
@@ -348,7 +348,7 @@ open_mmapped = FileMMapped
 
 
 def get_comm(pid):
-    comm_filename = '/proc/{:d}/comm'.format(pid)
+    comm_filename = '/proc/{0:d}/comm'.format(pid)
     with open(comm_filename, 'r') as fd:
         return fd.read().strip()
 
