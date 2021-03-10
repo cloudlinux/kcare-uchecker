@@ -3,7 +3,7 @@ version: 2.1
 jobs:
   build-and-test-36: &test-template
     docker:
-        - image: circleci/python:3.6
+        - image: circleci/python:2.7
     steps:
       - checkout
       - restore_cache:
@@ -43,13 +43,14 @@ jobs:
   build-and-test-27:
     <<: *test-template
     docker:
-        - image: circleci/python:2.7
+        - image: circleci/python:3.6
 
 workflows:
   main:
     jobs:
       - build-and-test-27
       - build-and-test-37
+      - build-and-test-36
       - build-and-test-382
       - build-and-test-383
       - build-and-test-39
