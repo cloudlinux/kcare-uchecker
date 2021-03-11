@@ -52,7 +52,7 @@ except ImportError:
 
 LIBCARE_CTL = '/usr/libexec/kcare/libcare-ctl'
 USERSPACE_JSON = 'https://gist.githubusercontent.com/histrio/f1532b287f4f6b206ddb8a903d41e423/raw/userspace.json'
-KCARE_PLUS_JSON = 'https://patches04.kernelcare.com/userspace-patches.json'
+KCARE_PLUS_JSON = 'https://patches.kernelcare.com/userspace-patches.json'
 LOGLEVEL = os.environ.get('LOGLEVEL', 'ERROR').upper()
 logging.basicConfig(level=LOGLEVEL, format='%(message)s')
 
@@ -71,10 +71,15 @@ def check_output(*args, **kwargs):
     """
     out, err = '', ''
     try:
-        p = subprocess.Popen(stdout=subprocess.PIPE, stderr=subprocess.PIPE, *args, **kwargs)
+        p = subprocess.Popen(stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                             *args, **kwargs)
         out, err = p.communicate()
+        if err or p.returncode != 0:
+            logging.debug('Subprocess `%s %s` error: %s (%s)',
+                          args, kwargs, err, p.returncode)
     except OSError as e:
-        logging.debug('Subprocess `%s %s` error: (%s) %s', args, kwargs, e, err)
+        logging.debug('Subprocess `%s %s` error: %s (%s)',
+                      args, kwargs, e, err)
     return normalize(out)
 
 
@@ -182,15 +187,7 @@ def get_patched_data():
         return result
 
     try:
-        proc = subprocess.Popen([LIBCARE_CTL, 'info', '-j'],
-                                stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        std_out, std_err = proc.communicate()
-        if proc.returncode != 0:
-            raise Exception("Libcare error: %s (%d)" % (std_err.strip(), proc.returncode))
-
-        if std_err:
-            logging.debug("Libcare error output: %s", std_err.strip())
-
+        std_out = check_output([LIBCARE_CTL, 'info', '-j'])
         for line in std_out.splitlines():
             item = json.loads(line)
             for v in item.values():
@@ -211,7 +208,7 @@ if 'ref-' in DATA:
     DATA = json.load(urlopen(USERSPACE_JSON)).get(DIST) or {}
 
 
-KCPLUS_DATA = json.load(urlopen(KCARE_PLUS_JSON))
+KCPLUS_DATA = set(json.load(urlopen(KCARE_PLUS_JSON)).keys())
 PATCHED_DATA = get_patched_data()
 
 
