@@ -442,7 +442,7 @@ def main():
                 comm, pid, libname)
 
     if not failed:
-        print("Everything is OK.")
+        print("It looks OK. We didn't find any outdated libraries.")
     else:
         print("\nYou may want to update libraries above and restart "
               "corresponding processes.\n\n KernelCare+ allows to resolve "
