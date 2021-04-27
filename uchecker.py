@@ -204,6 +204,7 @@ def get_dist_data():
     dist = get_dist()
     for dist_re, dist_data in json.load(urlopen(USERSPACE_JSON)).items():
         if re.match(dist_re, dist):
+            logging.debug("Distro `%s` was matches by `%s`", dist, dist_re)
             return dist_data
     return {}
 
@@ -211,6 +212,7 @@ DATA = get_dist_data()
 
 # Handle references
 if 'ref-' in DATA:
+    logging.debug("Distro reference detected: `%s`", DATA)
     DIST = DATA[4:]
     DATA = json.load(urlopen(USERSPACE_JSON)).get(DIST) or {}
 
