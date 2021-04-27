@@ -28,6 +28,7 @@ __status__ = 'Beta'
 __version__ = '0.1'
 
 import os
+import re
 import json
 import struct
 import logging
@@ -199,13 +200,23 @@ def get_patched_data():
     return result
 
 
-DIST = get_dist()
-DATA = json.load(urlopen(USERSPACE_JSON)).get(DIST, {})
+def get_dist_data():
+    dist = get_dist()
+    for dist_re, dist_data in json.load(urlopen(USERSPACE_JSON)).items():
+        if re.match(dist_re, dist):
+            return dist_data
+    return {}
+
+DATA = get_dist_data()
 
 # Handle references
 if 'ref-' in DATA:
     DIST = DATA[4:]
     DATA = json.load(urlopen(USERSPACE_JSON)).get(DIST) or {}
+
+if not DATA:
+    logging.error("Distro `%s` is not suppoted", DIST)
+    exit(2)
 
 
 KCPLUS_DATA = set(json.load(urlopen(KCARE_PLUS_JSON)).keys())
