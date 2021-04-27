@@ -84,7 +84,7 @@ def check_output(*args, **kwargs):
     return normalize(out)
 
 
-def _linux_distribution():
+def _linux_distribution(*args, **kwargs):
     """
     An alternative implementation became necessary because Python
     3.5 deprecated this function, and Python 3.8 removed it altogether.
@@ -172,11 +172,13 @@ def _linux_distribution():
 
 def get_dist():
     try:
-        from platform import linux_distribution
+        from platform import linux_distribution, _supported_dists
+        supported_dists = _supported_dists + ('arch', )
     except ImportError:
         linux_distribution = _linux_distribution
+        supported_dists = None
 
-    name, version, codename = linux_distribution()
+    name, version, codename = linux_distribution(supported_dists=supported_dists)
     return (name + version).replace(' ', '-').lower()
 
 
