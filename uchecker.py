@@ -432,7 +432,7 @@ def main():
     logging.info("Distro detected: %s", DIST)
 
     if not DATA:
-        logging.error("Distro `%s` is not suppoted", DIST)
+        logging.error("Distro `%s` is not supported", DIST)
         exit(1)
 
     for pid, libname, build_id in iter_proc_lib():
