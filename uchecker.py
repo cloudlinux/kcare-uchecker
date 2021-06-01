@@ -51,7 +51,7 @@ try:
 except ImportError:
     from urllib2 import urlopen
 
-LIBCARE_CTL = '/usr/libexec/kcare/libcare-ctl'
+LIBCARE_CLIENT = '/usr/libexec/kcare/libcare-client'
 USERSPACE_JSON = 'https://gist.githubusercontent.com/histrio/f1532b287f4f6b206ddb8a903d41e423/raw/userspace.json'
 KCARE_PLUS_JSON = 'https://patches.kernelcare.com/userspace-patches.json'
 LOGLEVEL = os.environ.get('LOGLEVEL', 'ERROR').upper()
@@ -70,17 +70,16 @@ def normalize(data, encoding='utf-8'):
 def check_output(*args, **kwargs):
     """ Backported implementation for check_output.
     """
-    out, err = '', ''
+    out = ''
     try:
         p = subprocess.Popen(stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                              *args, **kwargs)
         out, err = p.communicate()
         if err or p.returncode != 0:
-            logging.debug('Subprocess `%s %s` error: %s (%s)',
-                          args, kwargs, err, p.returncode)
+            raise OSError("{0} ({1})".format(err, p.returncode))
     except OSError as e:
-        logging.debug('Subprocess `%s %s` error: %s (%s)',
-                      args, kwargs, e, err)
+        logging.debug('Subprocess `%s %s` error: %s',
+                      args, kwargs, e)
     return normalize(out)
 
 
@@ -185,17 +184,25 @@ def get_dist():
 def get_patched_data():
     result = set()
 
-    if not os.path.isfile(LIBCARE_CTL):
+    if not os.path.isfile(LIBCARE_CLIENT):
         logging.debug("Libcare tools are not found.")
         return result
 
+    if os.system('service libcare status > /dev/null 2>&1') != 0:
+        logging.debug("Libcare service is not running.")
+        return result
+
     try:
-        std_out = check_output([LIBCARE_CTL, 'info', '-j'])
+        std_out = check_output([LIBCARE_CLIENT, 'info', '-j'])
         for line in std_out.splitlines():
-            item = json.loads(line)
-            for v in item.values():
-                if isinstance(v, dict) and 'buildid' in v:
-                    result.add((item['pid'], v['buildid']))
+            try:
+                item = json.loads(line)
+                for v in item.values():
+                    if isinstance(v, dict) and 'buildid' in v:
+                        result.add((item['pid'], v['buildid']))
+            except ValueError as e:
+                logging.debug("Can't parse `%s`: %s", line, e)
+
     except Exception as e:
         logging.debug("Can't read libcare info: %s", e)
 
