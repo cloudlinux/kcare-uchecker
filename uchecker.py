@@ -41,6 +41,7 @@ ELF_PH_HEADER = "<IIQQQQQQ"
 ELF_NHDR = "<3I"
 PT_NOTE = 4
 NT_GNU_BUILD_ID = 3
+NT_GO_BUILD_ID = 4
 IGNORED_PATHNAME = ["[heap]", "[stack]", "[vdso]", "[vsyscall]", "[vvar]"]
 
 Vma = namedtuple('Vma', 'offset size start end')
@@ -247,7 +248,7 @@ def get_build_id(fileobj):
         header = fileobj.read(struct.calcsize(ELF64_HEADER))
         hdr = struct.unpack(ELF64_HEADER, header)
     except struct.error as err:
-        # Cant't read ELF header
+        # Can't read ELF header
         raise NotAnELFException("Can't read header: {0}".format(err))
 
     (e_ident, e_type, e_machine, e_version, e_entry, e_phoff,
@@ -275,7 +276,7 @@ def get_build_id(fileobj):
             p_end = p_offset + p_filesz
             fileobj.seek(p_offset)
             n_type = None
-            while n_type != NT_GNU_BUILD_ID and fileobj.tell() <= p_end:
+            while n_type not in (NT_GNU_BUILD_ID, NT_GO_BUILD_ID) and fileobj.tell() <= p_end:
                 nhdr = fileobj.read(struct.calcsize(ELF_NHDR))
                 n_namesz, n_descsz, n_type = struct.unpack(ELF_NHDR, nhdr)
 
@@ -414,10 +415,10 @@ def iter_proc_lib():
                 with get_fileobj(pid, inode, pathname) as fileobj:
                     cache[inode] = get_build_id(fileobj)
             except (NotAnELFException, BuildIDParsingException) as err:
-                logging.info("Cant't read buildID from {0}: {1}".format(pathname, repr(err)))
+                logging.info("Can't read buildID from {0}: {1}".format(pathname, repr(err)))
                 cache[inode] = None
             except Exception as err:
-                logging.error("Cant't read buildID from {0}: {1}".format(pathname, repr(err)))
+                logging.error("Can't read buildID from {0}: {1}".format(pathname, repr(err)))
                 cache[inode] = None
         build_id = cache[inode]
         yield pid, os.path.basename(pathname), build_id
