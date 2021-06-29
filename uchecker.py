@@ -173,7 +173,7 @@ def _linux_distribution(*args, **kwargs):
 def get_dist():
     try:
         from platform import linux_distribution, _supported_dists
-        supported_dists = _supported_dists + ('arch', )
+        supported_dists = _supported_dists + ('arch', 'system')
     except ImportError:
         linux_distribution = _linux_distribution
         supported_dists = None
