@@ -27,4 +27,4 @@ $ curl -s -L https://kernelcare.com/uchecker | sudo LOGLEVEL=debug python
 ```
 
 ## About
-The project is part of [kernelcare.com](https://kernelcare.com "KernelCare") - livepatching solution for linux kernels as well as shared libraries like glibc and openssl
+The project is part of [tuxcare.com](https://tuxcare.com "TuxCare") - livepatching solution for linux kernels as well as shared libraries like glibc and openssl
