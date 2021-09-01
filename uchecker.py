@@ -346,7 +346,7 @@ class FileMMapped(object):
         for rng in self.vmas:
             if rng.offset <= offset < rng.offset + rng.size:
                 return rng
-        raise ValueError("Offset {0} is not in ranges {1}".format(offset, self.vmas))
+        raise IOError("Offset {0} is not in ranges {1}".format(offset, self.vmas))
 
     def tell(self):
         return self.pos
@@ -414,7 +414,7 @@ def iter_proc_lib():
             try:
                 with get_fileobj(pid, inode, pathname) as fileobj:
                     cache[inode] = get_build_id(fileobj)
-            except (NotAnELFException, BuildIDParsingException) as err:
+            except (NotAnELFException, BuildIDParsingException, IOError) as err:
                 logging.info("Can't read buildID from {0}: {1}".format(pathname, repr(err)))
                 cache[inode] = None
             except Exception as err:
