@@ -15,7 +15,7 @@ $ curl -s -L https://kernelcare.com/uchecker | sudo python
 You may want to update libraries above and restart corresponding processes.
 
 KernelCare+ allows to resolve such issues with no process downtime. To find 
-out more, please, visit https://lp.kernelcare.com/kernelcare-early-access?
+out more, please, visit https://tuxcare.com/live-patching-services/librarycare/
 ```
 
 ## Troubleshooting
