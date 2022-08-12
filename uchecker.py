@@ -461,7 +461,7 @@ def main():
         print("\nYou may want to update libraries above and restart "
               "corresponding processes.\n\n KernelCare+ allows to resolve "
               "such issues with no process downtime. To find out more, please,"
-              " visit https://lp.kernelcare.com/kernelcare-early-access?")
+              " visit https://tuxcare.com/live-patching-services/librarycare/")
 
     return 0 if not failed else 1
 
