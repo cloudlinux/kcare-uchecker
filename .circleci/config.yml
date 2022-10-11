@@ -8,7 +8,7 @@ jobs:
       - checkout
       - run:
           command: |
-            pip install poetry -U
+            curl -sSL https://install.python-poetry.org | python3 -
       - restore_cache:
             key: deps-{{ checksum "poetry.lock" }}
       - run:
