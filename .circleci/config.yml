@@ -40,6 +40,10 @@ jobs:
     <<: *test-template
     docker:
         - image: circleci/python:3.9
+  build-and-test-310:
+    <<: *test-template
+    docker:
+        - image: circleci/python:3.10
   build-and-test-27:
     <<: *test-template
     docker:
