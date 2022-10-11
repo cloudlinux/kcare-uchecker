@@ -6,6 +6,9 @@ jobs:
         - image: circleci/python:2.7
     steps:
       - checkout
+      - run:
+          command: |
+            pip install poetry -U
       - restore_cache:
             key: deps-{{ checksum "poetry.lock" }}
       - run:
