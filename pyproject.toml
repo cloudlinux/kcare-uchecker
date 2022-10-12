@@ -20,10 +20,13 @@ uchecker = 'uchecker:main'
 
 
 [tool.poetry.dev-dependencies]
+pytest = [
+    {version = "^4.6", python = "~2.7"},
+    {version = "^7.0", python = ">=3.5"}
+]
 flake8 = "^3.9.2"
-pytest = "^4.6.11"
-pytest-cov = "^2.12.1"
-mock = "^3.0.5"
+pytest-cov = "*"
+mock = "*"
 [build-system]
 requires = ["poetry>=0.12"]
 build-backend = "poetry.masonry.api"
