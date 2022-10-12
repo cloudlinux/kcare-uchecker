@@ -1,6 +1,6 @@
 # kcare-uchecker
 
-[![CI](https://github.com/histrio/kcare-uchecker/actions/workflows/python-tests.yml/badge.svg)](https://github.com/histrio/kcare-uchecker/actions/workflows/python-tests.yml)
+[![CI](https://github.com/cloudlinux/kcare-uchecker/actions/workflows/python-tests.yml/badge.svg)](https://github.com/cloudlinux/kcare-uchecker/actions/workflows/python-tests.yml)
 
 A simple tool to detect outdated shared libraries still linked to processes in memory
 
