@@ -27,6 +27,7 @@ pytest = [
 flake8 = "^3.9.2"
 pytest-cov = "*"
 mock = "*"
+more-itertools = "*"
 [build-system]
 requires = ["poetry>=0.12"]
 build-backend = "poetry.masonry.api"
