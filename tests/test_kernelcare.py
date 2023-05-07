@@ -53,18 +53,23 @@ def test_is_kcplus_handled():
 def test_get_dist_data():
     with mock.patch('uchecker.urlopen', return_value=StringIO('{}')):
         assert uchecker.get_dist_data('dist') == {}
+    uchecker.get_dist_data.clear()
 
     with mock.patch('uchecker.urlopen', return_value=StringIO('{"dist": {"lib.so": "hash"}}')):
         assert uchecker.get_dist_data('dist') == {"lib.so": "hash"}
+    uchecker.get_dist_data.clear()
 
     with mock.patch('uchecker.urlopen', return_value=StringIO('{"^dist$": {"lib.so": "hash"}}')):
         assert uchecker.get_dist_data('dist') == {"lib.so": "hash"}
+    uchecker.get_dist_data.clear()
 
     with mock.patch('uchecker.urlopen', return_value=StringIO('{"dist": "ref-dist2"}')):
         assert uchecker.get_dist_data('dist') == {}
+    uchecker.get_dist_data.clear()
 
     with mock.patch('uchecker.urlopen', return_value=StringIO('{"dist": "ref-dist2", "dist2": {"lib.so": "hash"}}')):
         assert uchecker.get_dist_data('dist') == {"lib.so": "hash"}
+    uchecker.get_dist_data.clear()
 
 
 def test_iter_maps():
@@ -85,3 +90,15 @@ def test_is_valid_file_mmap():
     assert uchecker.is_valid_file_mmap(uchecker.Map(None, None, None, None, None, 'path', None)) is True
     assert uchecker.is_valid_file_mmap(uchecker.Map(None, None, None, None, None, 'anon_inode:test', None)) is False
     assert uchecker.is_valid_file_mmap(uchecker.Map(None, None, None, None, None, '/dev/test', None)) is False
+
+
+def test_is_up_to_date():
+    with mock.patch('uchecker.get_dist_data', return_value={}):
+        assert uchecker.is_up_to_date("lib.so", "build-id", "dist") == True
+    uchecker.get_dist_data.clear()
+    with mock.patch('uchecker.get_dist_data', return_value={"lib.so": "build-id"}):
+        assert uchecker.is_up_to_date("lib.so", "build-id", "dist") == True
+    uchecker.get_dist_data.clear()
+    with mock.patch('uchecker.get_dist_data', return_value={"lib.so": "build-id-old"}):
+        assert uchecker.is_up_to_date("lib.so", "build-id", "dist") == True
+    uchecker.get_dist_data.clear()

@@ -210,6 +210,19 @@ def get_patched_data():
     return result
 
 
+def cache_dist(clbl):
+    data = {}
+    def wrapper(dist):
+        if dist not in data:
+            data[dist] = clbl(dist)
+        return data[dist]
+
+    wrapper.clear = data.clear
+    return wrapper
+
+
+
+@cache_dist
 def get_dist_data(dist):
     userspace_data = json.load(urlopen(USERSPACE_JSON))
     for dist_re, dist_data in userspace_data.items():
@@ -422,9 +435,10 @@ def is_kcplus_handled(build_id):
 
 def is_up_to_date(libname, build_id, dist):
     subset = get_dist_data(dist).get(libname, {})
+    print(subset)
     if not subset:
         logging.warning('No data for %s/%s.', dist, libname)
-    return not subset or build_id in subset
+    return (not subset) or (build_id in subset)
 
 
 def main():
