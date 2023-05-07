@@ -18,11 +18,14 @@ def tests_get_patched_data(mock_system, tmpdir):
         # Kernelare tools does not exist
         libcare_ctl.ensure(file=0)
         assert uchecker.get_patched_data() == set()
+        uchecker.get_patched_data.cache_clear()
         libcare_ctl.ensure(file=1)
         with mock.patch('uchecker.check_output', return_value='{}'):
             assert uchecker.get_patched_data() == set()
+        uchecker.get_patched_data.cache_clear()
         with mock.patch('uchecker.check_output', return_value='{wrong-format}'):
             assert uchecker.get_patched_data() == set()
+        uchecker.get_patched_data.cache_clear()
         with mock.patch('uchecker.check_output', return_value=LIBCARE_INFO_OUT):
             assert uchecker.get_patched_data() == {
                 (20025, '4cf1939f660008cfa869d8364651f31aacd2c1c4'),
@@ -33,6 +36,6 @@ def tests_get_patched_data(mock_system, tmpdir):
 
 
 def test_is_kcplus_handled():
-    with mock.patch('uchecker.KCPLUS_DATA', set(['buildid1', 'buildid2'])):
+    with mock.patch('uchecker.get_kcare_plus_data', return_value=set(['buildid1', 'buildid2'])):
         assert uchecker.is_kcplus_handled("buildid1")
         assert not uchecker.is_kcplus_handled("buildid3")
