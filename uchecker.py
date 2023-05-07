@@ -210,19 +210,19 @@ def get_patched_data():
     return result
 
 
-def cache_dist(clbl):
+def cached(clbl):
     data = {}
 
-    def wrapper(dist):
-        if dist not in data:
-            data[dist] = clbl(dist)
-        return data[dist]
+    def wrapper(*args):
+        if args not in data:
+            data[args] = clbl(*args)
+        return data[args]
 
     wrapper.clear = data.clear
     return wrapper
 
 
-@cache_dist
+@cached
 def get_dist_data(dist):
     userspace_data = json.load(urlopen(USERSPACE_JSON))
     for dist_re, dist_data in userspace_data.items():
@@ -428,6 +428,7 @@ def iter_proc_lib():
         yield pid, os.path.basename(pathname), build_id
 
 
+@cached
 def is_kcplus_handled(build_id):
     data = set(json.load(urlopen(KCARE_PLUS_JSON)).keys())
     return build_id in data
