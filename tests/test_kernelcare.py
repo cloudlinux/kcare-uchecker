@@ -79,16 +79,16 @@ def test_iter_maps():
     assert list(uchecker.iter_maps(-1)) == []
 
     map_line = '7f5fa46d0000-7f5fa46d1000 rw-p 00007000 103:03 6423990  /usr/lib/zsh/5.9/zsh/system.so'
-    with mock.patch('uchecker.open', mock.mock_open(read_data=map_line)) as m:
+    with mock.patch('uchecker.open', mock.mock_open(read_data=map_line)):
         assert list(uchecker.iter_maps(1)) == [uchecker.Map(
-            addr='7f5fa46d0000-7f5fa46d1000', 
-            perm='rw-p', 
-            offset='00007000', dev='103:03', inode='6423990', 
+            addr='7f5fa46d0000-7f5fa46d1000',
+            perm='rw-p',
+            offset='00007000', dev='103:03', inode='6423990',
             pathname='/usr/lib/zsh/5.9/zsh/system.so', flag=None
-    )]
+        )]
 
 
 def test_is_valid_file_mmap():
-    assert uchecker.is_valid_file_mmap(uchecker.Map(None, None, None, None, None, 'path', None)) == True
-    assert uchecker.is_valid_file_mmap(uchecker.Map(None, None, None, None, None, 'anon_inode:test', None)) == False
-    assert uchecker.is_valid_file_mmap(uchecker.Map(None, None, None, None, None, '/dev/test', None)) == False
+    assert uchecker.is_valid_file_mmap(uchecker.Map(None, None, None, None, None, 'path', None)) is True
+    assert uchecker.is_valid_file_mmap(uchecker.Map(None, None, None, None, None, 'anon_inode:test', None)) is False
+    assert uchecker.is_valid_file_mmap(uchecker.Map(None, None, None, None, None, '/dev/test', None)) is False
