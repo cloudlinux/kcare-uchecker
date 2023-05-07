@@ -212,6 +212,7 @@ def get_patched_data():
 
 def cache_dist(clbl):
     data = {}
+
     def wrapper(dist):
         if dist not in data:
             data[dist] = clbl(dist)
@@ -219,7 +220,6 @@ def cache_dist(clbl):
 
     wrapper.clear = data.clear
     return wrapper
-
 
 
 @cache_dist

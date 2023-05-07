@@ -94,11 +94,11 @@ def test_is_valid_file_mmap():
 
 def test_is_up_to_date():
     with mock.patch('uchecker.get_dist_data', return_value={}):
-        assert uchecker.is_up_to_date("lib.so", "build-id", "dist") == True
+        assert uchecker.is_up_to_date("lib.so", "build-id", "dist") is True
     uchecker.get_dist_data.clear()
     with mock.patch('uchecker.get_dist_data', return_value={"lib.so": "build-id"}):
-        assert uchecker.is_up_to_date("lib.so", "build-id", "dist") == True
+        assert uchecker.is_up_to_date("lib.so", "build-id", "dist") is True
     uchecker.get_dist_data.clear()
     with mock.patch('uchecker.get_dist_data', return_value={"lib.so": "build-id-old"}):
-        assert uchecker.is_up_to_date("lib.so", "build-id", "dist") == True
+        assert uchecker.is_up_to_date("lib.so", "build-id", "dist") is True
     uchecker.get_dist_data.clear()
