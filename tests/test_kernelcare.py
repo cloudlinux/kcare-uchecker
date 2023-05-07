@@ -23,14 +23,11 @@ def tests_get_patched_data(mock_system, tmpdir):
         # Kernelare tools does not exist
         libcare_ctl.ensure(file=0)
         assert uchecker.get_patched_data() == set()
-        uchecker.get_patched_data.cache_clear()
         libcare_ctl.ensure(file=1)
         with mock.patch('uchecker.check_output', return_value='{}'):
             assert uchecker.get_patched_data() == set()
-        uchecker.get_patched_data.cache_clear()
         with mock.patch('uchecker.check_output', return_value='{wrong-format}'):
             assert uchecker.get_patched_data() == set()
-        uchecker.get_patched_data.cache_clear()
         with mock.patch('uchecker.check_output', return_value=LIBCARE_INFO_OUT):
             assert uchecker.get_patched_data() == {
                 (20025, '4cf1939f660008cfa869d8364651f31aacd2c1c4'),
@@ -38,13 +35,10 @@ def tests_get_patched_data(mock_system, tmpdir):
                 (20026, '4cf1939f660008cfa869d8364651f31aacd2c1c4'),
                 (20026, 'f9fafde281e0e0e2af45911ad0fa115b64c2ce10')
             }
-        uchecker.get_patched_data.cache_clear()
         with mock.patch('uchecker.check_output', side_effect=IOError('test')):
             assert uchecker.get_patched_data() == set()
-        uchecker.get_patched_data.cache_clear()
         with mock.patch('uchecker.LIBCARE_CLIENT', '/file/that/not/exists/'):
             assert uchecker.get_patched_data() == set()
-        uchecker.get_patched_data.cache_clear()
         with mock.patch('uchecker.os.system', return_value=1):
             assert uchecker.get_patched_data() == set()
 
@@ -56,22 +50,21 @@ def test_is_kcplus_handled():
         assert not uchecker.is_kcplus_handled("buildid3")
 
 
-@mock.patch('uchecker.get_dist', return_value='dist')
-def test_get_dist_data(mock_dist):
+def test_get_dist_data():
     with mock.patch('uchecker.urlopen', return_value=StringIO('{}')):
-        assert uchecker.get_dist_data() == {}
+        assert uchecker.get_dist_data('dist') == {}
 
     with mock.patch('uchecker.urlopen', return_value=StringIO('{"dist": {"lib.so": "hash"}}')):
-        assert uchecker.get_dist_data() == {"lib.so": "hash"}
+        assert uchecker.get_dist_data('dist') == {"lib.so": "hash"}
 
     with mock.patch('uchecker.urlopen', return_value=StringIO('{"^dist$": {"lib.so": "hash"}}')):
-        assert uchecker.get_dist_data() == {"lib.so": "hash"}
+        assert uchecker.get_dist_data('dist') == {"lib.so": "hash"}
 
     with mock.patch('uchecker.urlopen', return_value=StringIO('{"dist": "ref-dist2"}')):
-        assert uchecker.get_dist_data() == {}
+        assert uchecker.get_dist_data('dist') == {}
 
     with mock.patch('uchecker.urlopen', return_value=StringIO('{"dist": "ref-dist2", "dist2": {"lib.so": "hash"}}')):
-        assert uchecker.get_dist_data() == {"lib.so": "hash"}
+        assert uchecker.get_dist_data('dist') == {"lib.so": "hash"}
 
 
 def test_iter_maps():

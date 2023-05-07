@@ -33,7 +33,6 @@ import json
 import struct
 import logging
 import subprocess
-import functools
 
 from collections import namedtuple
 
@@ -171,7 +170,6 @@ def _linux_distribution(*args, **kwargs):
     return first(name_sources), first(version_sources), first(codename_sources)
 
 
-@functools.lru_cache(maxsize=None)
 def get_dist():
     try:
         from platform import linux_distribution, _supported_dists
@@ -184,7 +182,6 @@ def get_dist():
     return (name + version).replace(' ', '-').lower()
 
 
-@functools.lru_cache(maxsize=None)
 def get_patched_data():
     result = set()
 
@@ -213,9 +210,8 @@ def get_patched_data():
     return result
 
 
-def get_dist_data():
+def get_dist_data(dist):
     userspace_data = json.load(urlopen(USERSPACE_JSON))
-    dist = get_dist()
     for dist_re, dist_data in userspace_data.items():
         if re.match(dist_re, dist):
             logging.debug("Distro `%s` was matched by `%s`", dist, dist_re)
@@ -424,10 +420,10 @@ def is_kcplus_handled(build_id):
     return build_id in data
 
 
-def is_up_to_date(libname, build_id):
+def is_up_to_date(libname, build_id, dist):
     subset = get_dist_data().get(libname, {})
     if not subset:
-        logging.warning('No data for %s/%s.', get_dist(), libname)
+        logging.warning('No data for %s/%s.', dist, libname)
     return not subset or build_id in subset
 
 
@@ -436,7 +432,7 @@ def main():
     dist = get_dist()
     logging.info("Distro detected: %s", dist)
 
-    if not get_dist_data():
+    if not get_dist_data(dist):
         logging.error("Distro `%s` is not supported", dist)
         exit(1)
 
@@ -445,7 +441,7 @@ def main():
         logging.info("For %s[%s] `%s` was found with buid id = %s",
                      comm, pid, libname, build_id)
         if build_id and (pid, build_id) not in get_patched_data() \
-           and not is_up_to_date(libname, build_id):
+           and not is_up_to_date(libname, build_id, dist):
             failed = True
             logging.error(
                 "[%s] Process %s[%d] linked to the `%s` that is not up to date.",
