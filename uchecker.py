@@ -453,11 +453,12 @@ def main():
         logging.error("Distro `%s` is not supported", dist)
         exit(1)
 
+    patched_data = get_patched_data()
     for pid, libname, build_id in iter_proc_lib():
         comm = get_comm(pid)
         logging.info("For %s[%s] `%s` was found with buid id = %s",
                      comm, pid, libname, build_id)
-        if build_id and (pid, build_id) not in get_patched_data() \
+        if build_id and (pid, build_id) not in patched_data\
            and not is_up_to_date(libname, build_id, dist):
             failed = True
             logging.error(
