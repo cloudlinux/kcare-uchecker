@@ -229,12 +229,6 @@ def get_dist_data():
     return {}
 
 
-
-@functools.lru_cache(maxsize=None)
-def get_kcare_plus_data():
-    return set(json.load(urlopen(KCARE_PLUS_JSON)).keys())
-
-
 class NotAnELFException(Exception):
     pass
 
@@ -426,7 +420,8 @@ def iter_proc_lib():
 
 
 def is_kcplus_handled(build_id):
-    return build_id in get_kcare_plus_data()
+    data = set(json.load(urlopen(KCARE_PLUS_JSON)).keys())
+    return build_id in data
 
 
 def is_up_to_date(libname, build_id):

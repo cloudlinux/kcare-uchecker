@@ -25,7 +25,7 @@ pytest = [
     {version = "^7.0", python = ">=3.5"}
 ]
 flake8 = "^3.9.2"
-pytest-cov = "*"
+pytest-coverage = "*"
 mock = "*"
 more-itertools = "*"
 [build-system]
