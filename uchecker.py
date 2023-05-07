@@ -429,9 +429,12 @@ def iter_proc_lib():
 
 
 @cached
+def get_kcplus_data():
+    return set(json.load(urlopen(KCARE_PLUS_JSON)).keys())
+
+
 def is_kcplus_handled(build_id):
-    data = set(json.load(urlopen(KCARE_PLUS_JSON)).keys())
-    return build_id in data
+    return build_id in get_kcplus_data()
 
 
 def is_up_to_date(libname, build_id, dist):
