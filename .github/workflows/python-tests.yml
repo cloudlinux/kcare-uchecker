@@ -10,7 +10,7 @@ on:
 jobs:
   tests:
     name: Tests on ${{ matrix.python-version }}
-    runs-on: ubuntu-latest
+      #runs-on: ubuntu-latest
 
     strategy:
       matrix:
