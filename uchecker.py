@@ -435,7 +435,6 @@ def is_kcplus_handled(build_id):
 
 def is_up_to_date(libname, build_id, dist):
     subset = get_dist_data(dist).get(libname, {})
-    print(subset)
     if not subset:
         logging.warning('No data for %s/%s.', dist, libname)
     return (not subset) or (build_id in subset)
