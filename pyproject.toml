@@ -13,7 +13,7 @@ packages = [
 ]
 
 [tool.poetry.dependencies]
-python = "^3.6|^3.7|^3.8|^3.9|^2.7|^3.10"
+python = "^3.5|^3.6|^3.7|^3.8|^3.9|^2.7|^3.10"
 
 [tool.poetry.scripts]
 uchecker = 'uchecker:main'
@@ -22,7 +22,8 @@ uchecker = 'uchecker:main'
 [tool.poetry.dev-dependencies]
 pytest = [
     {version = "^4.6", python = "~2.7"},
-    {version = "^7.0", python = ">=3.5"}
+    {version = "^6.0", python = "~3.5"},
+    {version = "^7.0", python = ">=3.6"}
 ]
 flake8 = "^3.9.2"
 pytest-coverage = "*"
