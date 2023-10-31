@@ -1,4 +1,6 @@
+import pytest
 import mock
+
 import uchecker
 
 try:
@@ -102,3 +104,14 @@ def test_is_up_to_date():
     with mock.patch('uchecker.get_dist_data', return_value={"lib.so": "build-id-old"}):
         assert uchecker.is_up_to_date("lib.so", "build-id", "dist") is True
     uchecker.get_dist_data.clear()
+
+
+def test_normalize_string():
+    assert uchecker.normalize("hello") == "hello"
+
+def test_normalize_bytes():
+    assert uchecker.normalize(b"hello") == "hello"
+
+def test_normalize_non_string_bytes():
+    with pytest.raises(AttributeError):
+        uchecker.normalize(123)
