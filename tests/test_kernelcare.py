@@ -108,11 +108,11 @@ def test_is_up_to_date():
 
 def test_normalize_string():
     assert uchecker.normalize("hello") == "hello"
-    
+
 
 def test_normalize_bytes():
     assert uchecker.normalize(b"hello") == "hello"
-    
+
 
 def test_normalize_non_string_bytes():
     with pytest.raises(AttributeError):
