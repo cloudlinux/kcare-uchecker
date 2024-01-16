@@ -29,7 +29,7 @@ flake8 = "^3.9.2"
 pytest-coverage = "*"
 mock = "*"
 more-itertools = "*"
-[build-system]
-requires = ["poetry>=0.12"]
-build-backend = "poetry.masonry.api"
 
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
