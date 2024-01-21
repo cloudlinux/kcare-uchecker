@@ -1,12 +1,15 @@
-import pytest
-import mock
-
-import uchecker
-
 try:
     from cStringIO import StringIO
 except ImportError:
     from io import StringIO
+
+import pytest
+try:
+    from unittest import mock
+except ImportError:
+    import mock
+
+import uchecker
 
 
 LIBCARE_INFO_OUT = '{"pid": 20025, "comm": "sshd" , '\
