@@ -56,7 +56,6 @@ LIBCARE_CLIENT = '/usr/libexec/kcare/libcare-client'
 USERSPACE_JSON = 'https://gist.githubusercontent.com/histrio/f1532b287f4f6b206ddb8a903d41e423/raw/userspace.json'
 KCARE_PLUS_JSON = 'https://patches.kernelcare.com/userspace-patches.json'
 LOGLEVEL = os.environ.get('LOGLEVEL', 'ERROR').upper()
-logging.basicConfig(level=LOGLEVEL, format='%(message)s')
 
 
 def normalize(data, encoding='utf-8'):
@@ -478,4 +477,5 @@ def main():
 
 
 if __name__ == '__main__':
+    logging.basicConfig(level=LOGLEVEL, format='%(message)s')
     exit(main())
