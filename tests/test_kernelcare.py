@@ -1,13 +1,15 @@
+import sys
+
 try:
     from cStringIO import StringIO
 except ImportError:
     from io import StringIO
 
 import pytest
-try:
-    from unittest import mock
-except ImportError:
+if sys.version_info < (3, 8):
     import mock
+else:
+    from unittest import mock
 
 import uchecker
 

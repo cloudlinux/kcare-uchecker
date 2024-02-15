@@ -27,7 +27,7 @@ pytest = [
 ]
 flake8 = "^3.9.2"
 pytest-coverage = "*"
-mock = { version = "*", markers = "python_version < '3.3'" }
+mock = { version = "*", markers = "python_version < '3.8'" }
 more-itertools = "*"
 
 [build-system]
