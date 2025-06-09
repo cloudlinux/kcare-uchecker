@@ -7,31 +7,56 @@ on:
     branches: [master, main]
 
 jobs:
-  tests:
+  tests-legacy:
     name: Tests on Python ${{ matrix.python-version }}
     runs-on: ubuntu-latest
-
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["2.7", "3.5", "3.6", "3.7", "3.8", "3.9", "3.10", "3.11", "3.12"]
+        python-version: ["2.7", "3.5", "3.6", "3.7"]
+
+    container:
+      image: python:${{ matrix.python-version }}-slim-buster
 
     steps:
       - uses: actions/checkout@v4
+      
+      - name: Install uv
+        run: pip install uv
+        
+      - name: Install dependencies
+        run: uv pip install '.[dev]'
+        
+      - name: Do lint
+        run: uv run flake8 .
+        
+      - name: Do tests
+        run: uv run pytest --cov uchecker -v
 
+  tests-modern:
+    name: Tests on Python ${{ matrix.python-version }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
+
+    steps:
+      - uses: actions/checkout@v4
+      
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-
+          
       - name: Install uv
         run: pip install uv
-
+        
       - name: Install dependencies
         run: uv pip install '.[dev]'
-
+        
       - name: Do lint
         run: uv run flake8 .
-
+        
       - name: Do tests
         run: uv run pytest --cov uchecker -v
