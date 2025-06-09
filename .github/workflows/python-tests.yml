@@ -35,6 +35,9 @@ jobs:
       - name: Install flake8
         run: python -m pip install flake8
 
+      - name: Install 
+        run: pip install -e .
+
       - name: Run linter
         run: flake8 --max-line-length 120 --ignore=E721 .
 
