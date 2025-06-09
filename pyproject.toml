@@ -1,44 +1,19 @@
-[tool.poetry]
+[project]
 name = "kcare-uchecker"
 version = "0.1.2"
 description = "A simple tool to detect outdated shared libraries"
-authors = ["Rinat Sabitov <rinat.sabitov@gmail.com>"]
-license = "GPL-2.0-only"
+authors = [
+    { name = "Rinat Sabitov", email = "rinat.sabitov@gmail.com" },
+]
+license = { text = "GPL-2.0-only" }
 readme = "README.md"
 homepage = "https://kernelcare.com/"
 repository = "https://github.com/cloudlinux/kcare-uchecker"
 keywords = ["security-audit", "shared-libraries", "security-scanner", "security-tools", "secutiry"]
-packages = [
-    { include = "uchecker.py" },
-]
+requires-python = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
 
-[tool.poetry.dependencies]
-python = "^3.5|^3.6|^3.7|^3.8|^3.9|^2.7|^3.10"
+dependencies = []
 
-[tool.poetry.scripts]
-uchecker = 'uchecker:main'
+[project.scripts]
+uchecker = "uchecker:main"
 
-[tool.poetry.dev-dependencies]
-pytest = [
-    {version = "^4.6", python = "~2.7"},
-    {version = "^6.0", python = "~3.5"},
-    {version = "^7.0", python = ">=3.6"}
-]
-flake8 = [
-    {version = "<3.8", python = "~2.7"},
-    {version = "<3.9", python = "~3.5"},
-    {version = "^4.0", python = "~3.6"},
-    {version = "^5.0", python = "~3.7"},
-    {version = "^6.0", python = ">=3.8.1"}
-]
-pytest-coverage = "*"
-mock = { version = "*", python = "~2.7" }
-more-itertools = [
-    {version = "<8.6.0", python = "~3.5"},
-    {version = "*", python = ">=3.6"}
-]
-functools32 = { version = "*", python = "~2.7" }
-
-[build-system]
-requires = ["poetry>=0.12"]
-build-backend = "poetry.masonry.api"
