@@ -53,8 +53,8 @@ except ImportError:
     from urllib2 import urlopen
 
 LIBCARE_CLIENT = '/usr/libexec/kcare/libcare-client'
-USERSPACE_JSON = 'https://gist.githubusercontent.com/histrio/f1532b287f4f6b206ddb8a903d41e423/raw/userspace.json'
-KCARE_PLUS_JSON = 'https://patches.kernelcare.com/userspace-patches.json'
+USERSPACE_JSON = 'https://raw.githubusercontent.com/kernelcare/public/refs/heads/main/userspace.json'
+KCARE_PLUS_JSON = 'https://patches.kernelcare.com/libcare-patches.json'
 LOGLEVEL = os.environ.get('LOGLEVEL', 'ERROR').upper()
 
 

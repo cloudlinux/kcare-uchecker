@@ -1,35 +1,23 @@
-[tool.poetry]
+[project]
 name = "kcare-uchecker"
 version = "0.1.2"
 description = "A simple tool to detect outdated shared libraries"
-authors = ["Rinat Sabitov <rinat.sabitov@gmail.com>"]
-license = "GPL-2.0-only"
+authors = [
+    { name = "Rinat Sabitov", email = "rinat.sabitov@gmail.com" },
+]
+license = { text = "GPL-2.0-only" }
 readme = "README.md"
-homepage = "https://kernelcare.com/"
-repository = "https://github.com/cloudlinux/kcare-uchecker"
 keywords = ["security-audit", "shared-libraries", "security-scanner", "security-tools", "secutiry"]
-packages = [
-    { include = "uchecker.py" },
+requires-python = ">=2.7"
+
+dependencies = []
+
+[project.scripts]
+uchecker = "uchecker:main"
+
+# Add this section for your test dependencies
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "pytest-cov",
 ]
-
-[tool.poetry.dependencies]
-python = "^3.5|^3.6|^3.7|^3.8|^3.9|^2.7|^3.10"
-
-[tool.poetry.scripts]
-uchecker = 'uchecker:main'
-
-
-[tool.poetry.dev-dependencies]
-pytest = [
-    {version = "^4.6", python = "~2.7"},
-    {version = "^6.0", python = "~3.5"},
-    {version = "^7.0", python = ">=3.6"}
-]
-flake8 = "^3.9.2"
-pytest-coverage = "*"
-mock = { version = "*", markers = "python_version < '3.8'" }
-more-itertools = "*"
-
-[build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
