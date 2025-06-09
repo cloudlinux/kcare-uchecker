@@ -40,4 +40,3 @@ functools32 = { version = "*", python = "~2.7" }
 [build-system]
 requires = ["poetry>=0.12"]
 build-backend = "poetry.masonry.api"
-

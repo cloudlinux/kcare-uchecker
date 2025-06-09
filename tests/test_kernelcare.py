@@ -1,12 +1,17 @@
-import pytest
-import mock
-
-import uchecker
+import sys
 
 try:
     from cStringIO import StringIO
 except ImportError:
     from io import StringIO
+
+import pytest
+if sys.version_info < (3, 8):
+    import mock
+else:
+    from unittest import mock
+
+import uchecker
 
 
 LIBCARE_INFO_OUT = '{"pid": 20025, "comm": "sshd" , '\
