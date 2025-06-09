@@ -17,3 +17,10 @@ dependencies = []
 [project.scripts]
 uchecker = "uchecker:main"
 
+[dependency-groups]
+dev = [
+    "pytest>=4.6.11",
+    "pytest-coverage>=0.0",
+    "ruff>=0.0.17",
+]
+
