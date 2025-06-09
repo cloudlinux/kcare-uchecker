@@ -33,7 +33,7 @@ jobs:
         run: python -m pip install -r requirements-dev.txt
 
       - name: Run linter
-        run: flake8 .
+        run: flake8 --max-line-length 120 --ignore=E721 .
 
       - name: Run tests
         run: pytest --cov uchecker -v
