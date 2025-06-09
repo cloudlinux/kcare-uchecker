@@ -1,4 +1,4 @@
-name: CI
+name: Build and Test
 
 on:
   push:
@@ -7,47 +7,33 @@ on:
     branches: [master, main]
 
 jobs:
-  tests-legacy:
-    name: Tests on Python ${{ matrix.python-version }}
+  build-and-test:
+    name: Test on Python ${{ matrix.python-version }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["2.7", "3.5", "3.6", "3.7"]
-
-    container:
-      image: python:${{ matrix.python-version }}-slim-buster
+        python-version: ["2.7", "3.7", "3.8", "3.9", "3.10", "3.11", "3.12"]
 
     steps:
-      - uses: actions/checkout@v4
-      - name: Install uv
-        run: pip install uv
-      - name: Install dependencies
-        run: uv pip install '.[dev]'
-      - name: Run linter
-        run: uv run ruff check .
-      - name: Do tests
-        run: uv run pytest --cov uchecker -v
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-  tests-modern:
-    name: Tests on Python ${{ matrix.python-version }}
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
-
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up Python ${{ matrix.python-version }}
+      - name: Set up Python ${{ matrix.python-version }} and cache dependencies
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Install uv
-        run: pip install uv
-      - name: Install dependencies
-        run: uv pip install '.[dev]'
+          cache: 'pip'
+          cache-dependency-path: requirements-dev.txt
+
+      - name: Upgrade pip
+        run: python -m pip install --upgrade pip
+
+      - name: Install dependencies from locked file
+        run: python -m pip install -r requirements-dev.txt
+
       - name: Run linter
-        run: uv run ruff check .
-      - name: Do tests
-        run: uv run pytest --cov uchecker -v
+        run: flake8 .
+
+      - name: Run tests
+        run: pytest --cov uchecker -v

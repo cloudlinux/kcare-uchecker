@@ -10,17 +10,17 @@ readme = "README.md"
 homepage = "https://kernelcare.com/"
 repository = "https://github.com/cloudlinux/kcare-uchecker"
 keywords = ["security-audit", "shared-libraries", "security-scanner", "security-tools", "secutiry"]
-requires-python = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
+requires-python = ">=2.7"
 
 dependencies = []
 
 [project.scripts]
 uchecker = "uchecker:main"
 
-[dependency-groups]
+[project.optional-dependencies]
 dev = [
-    "pytest>=4.6.11",
-    "pytest-coverage>=0.0",
-    "ruff>=0.0.17",
+    "pytest",
+    "pytest-coverage",
+    "flake8",
 ]
 
