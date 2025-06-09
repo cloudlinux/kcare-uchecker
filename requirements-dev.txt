@@ -2,20 +2,12 @@
 #    uv pip compile pyproject.toml --extra dev -o requirements-dev.txt
 coverage==7.8.2
     # via pytest-cov
-flake8==7.2.0
-    # via kcare-uchecker (pyproject.toml)
 iniconfig==2.1.0
     # via pytest
-mccabe==0.7.0
-    # via flake8
 packaging==25.0
     # via pytest
 pluggy==1.6.0
     # via pytest
-pycodestyle==2.13.0
-    # via flake8
-pyflakes==3.3.2
-    # via flake8
 pygments==2.19.1
     # via pytest
 pytest==8.4.0
@@ -23,8 +15,4 @@ pytest==8.4.0
     #   kcare-uchecker (pyproject.toml)
     #   pytest-cov
 pytest-cov==6.1.1
-    # via pytest-cover
-pytest-cover==3.0.0
-    # via pytest-coverage
-pytest-coverage==0.0
     # via kcare-uchecker (pyproject.toml)
